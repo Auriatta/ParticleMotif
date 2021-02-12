@@ -9,7 +9,7 @@ RandVertiesShapes: Rand verties from vector
 */
 struct EmitterSettings
 {
-	std::vector<ParticleSettings> ParticleSettingsScope;
+	std::vector<ParticleSettings<2>> ParticleSettingsScope;
 	cocos2d::Vec4 ParticleSpawnBoundriesOffset;
 	cocos2d::Vec2 Position;
 	std::list<ParticleAction> ActionSequence;
@@ -17,8 +17,12 @@ struct EmitterSettings
 	float SettingsCopyEntirety = true;
 	float RandSettings = true;
 	float RandVertiesShapes = false;
-	
+
+	ParticleSettings<2>& RandPtrlSettings();
+	void SortActionSequence();
+	ParticleSettings<1> RandPtrlSettingItemsRange(ParticleSettings<2>*ParticleSetings);
 };
+
 
 
 class IEmitter
@@ -35,7 +39,7 @@ protected:
 	virtual void Update() = 0;
 	virtual void SetPtrlSettings() = 0;
 
-	ParticleSettings Ptrl_Settings;
+	ParticleSettings<2> Ptrl_Settings;
 	EmitterSettings Emitter_Settings;
 
 };
@@ -74,8 +78,6 @@ protected:
 	virtual void Update() override;
 	virtual void SetPtrlSettings() override;
 
-	void RandPtrlSettings();
-	void SortActionSequence();
 
 	std::vector<cocos2d::Point> GetVertiesFromShapeList();
 	cocos2d::Vec2 GetNewPosition();

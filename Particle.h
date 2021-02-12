@@ -17,17 +17,19 @@ struct ParticleAction
 	
 };
 
+
+
+template<int Size>
 struct ParticleSettings
 {
-	cocos2d::Color4B BeginFillColor = cocos2d::Color4B::YELLOW;
-	cocos2d::Color4B BeginBorderColor = cocos2d::Color4B::MAGENTA;
-	float BeginBorderWith = 1;
-	cocos2d::Size BeginScale = { 1,1 };
-	float BeginRotation = 0;
-	float FadeOutDuration = 0.3f;
-	float LifeTime = 3;
+	cocos2d::Color4B BeginFillColor = cocos2d::Color4B::WHITE;
+	cocos2d::Color4B BeginBorderColor = cocos2d::Color4B::BLACK;
+	std::array<float, Size> BeginBorderWith;
+	std::array<cocos2d::Size, Size> BeginScale;
+	std::array<float, Size> BeginRotation;
+	std::array<float, Size> FadeOutDuration;
+	std::array<float, Size> LifeTime;
 };
-
 
 
 class IParticle
@@ -52,7 +54,7 @@ protected:
 class Particle : public IParticle
 {
 public:
-	Particle(ParticleSettings& settings, cocos2d::Vec2 beginPosition,
+	Particle(ParticleSettings<1>& settings, cocos2d::Vec2 beginPosition,
 		std::vector<cocos2d::Vec2> ShapeVerties,
 		std::list<ParticleAction>* ActionSequence, bool autoSpawn = false);
 

@@ -32,22 +32,23 @@ void MPoliform::CreateEmitter_1()
 		cocos2d::Vec2(-25,25) ,
 		cocos2d::Vec2(25,25) });
 
-	ParticleSettings prtl_s_1;
+	ParticleSettings<2> prtl_s_1;
 	prtl_s_1.BeginBorderColor = cocos2d::Color4B::ORANGE;
 	prtl_s_1.BeginFillColor = cocos2d::Color4B(0, 0, 0, 0);
-	prtl_s_1.BeginBorderWith = 1.2;
-	prtl_s_1.BeginRotation = 0;
-	prtl_s_1.BeginScale = cocos2d::Size(1,1);
-	prtl_s_1.FadeOutDuration = 0.5;
-	prtl_s_1.LifeTime = 4;
+	prtl_s_1.BeginBorderWith = { 1.2,1.2 };
+	prtl_s_1.BeginRotation = {0,0};
+	prtl_s_1.BeginScale = { cocos2d::Size(1,1),cocos2d::Size(1,1) };
+	prtl_s_1.FadeOutDuration = { 1,1 };
+	prtl_s_1.LifeTime = { 4,4 };
 
-	ParticleSettings prtl_s_2;
-	prtl_s_2.BeginFillColor = cocos2d::Color4B::WHITE;
-	prtl_s_2.BeginBorderWith = 0;
-	prtl_s_2.BeginRotation = 45;
-	prtl_s_2.BeginScale = cocos2d::Size(1, 1);
-	prtl_s_2.FadeOutDuration = 2;
-	prtl_s_2.LifeTime = 4;
+	ParticleSettings<2> prtl_s_2;
+	prtl_s_2.BeginBorderColor = cocos2d::Color4B::WHITE;
+	prtl_s_2.BeginFillColor = cocos2d::Color4B(0, 0, 0, 0);
+	prtl_s_2.BeginBorderWith = { 1.2,1.2 };
+	prtl_s_2.BeginRotation = { 0,180 };
+	prtl_s_2.BeginScale = { cocos2d::Size(1,1),cocos2d::Size(1,1) };
+	prtl_s_2.FadeOutDuration = { 1,1 };
+	prtl_s_2.LifeTime = { 4,4 };
 
 
 	EmitterSettings emitter_s;

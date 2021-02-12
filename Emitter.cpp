@@ -15,7 +15,7 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	
 	Emitter_Settings = *emitter_settings;
 
-	SortActionSequence();
+	Emitter_Settings.SortActionSequence();
 }
 
 Emitter::Emitter(EmitterSettings *emitter_settings,
@@ -31,7 +31,7 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	
 	Emitter_Settings = *emitter_settings;
 
-	SortActionSequence();
+	Emitter_Settings.SortActionSequence();
 }
 
 void Emitter::Init()
@@ -55,15 +55,13 @@ void Emitter::Destroy()
 	delete this;
 }
 
-
-	
 void Emitter::Update()
 {
 	SetPtrlSettings();
 
 	Prtl_Buffer.push_back(std::unique_ptr<IParticle, ParticleDeleter>(
 		new Particle(
-			Ptrl_Settings,
+			Emitter_Settings.RandPtrlSettingItemsRange(&Ptrl_Settings),
 			GetNewPosition(),
 			GetVertiesFromShapeList(),
 			&Emitter_Settings.ActionSequence,
@@ -82,7 +80,7 @@ void Emitter::SetPtrlSettings()
 {
 	if (Emitter_Settings.ParticleSettingsScope.size() > 1)
 	{
-		const std::vector<ParticleSettings>* NewParticleSettings = &Emitter_Settings.ParticleSettingsScope;
+		const std::vector<ParticleSettings<2>>* NewParticleSettings = &Emitter_Settings.ParticleSettingsScope;
 		const int PtrlSettingSize = NewParticleSettings->size(); 
 		
 		if (Emitter_Settings.SettingsCopyEntirety)
@@ -100,38 +98,11 @@ void Emitter::SetPtrlSettings()
 		else
 		{
 			if(Emitter_Settings.RandSettings)
-				RandPtrlSettings();
+				Ptrl_Settings = Emitter_Settings.RandPtrlSettings();
 			else
 				Ptrl_Settings = (*NewParticleSettings)[SettingIndex];
 		}
 	}
-}
-
-void Emitter::RandPtrlSettings()
-{
-	const std::vector<ParticleSettings>* NewParticleSettings = &Emitter_Settings.ParticleSettingsScope;
-	const int NewSettingSize = NewParticleSettings->size();
-
-	auto RandIndex = [this](int size)->int {return cocos2d::RandomHelper::random_int(0, (size - 1)); };
-	
-	Ptrl_Settings.BeginBorderColor = (*NewParticleSettings)[RandIndex(NewSettingSize)].BeginBorderColor;
-	Ptrl_Settings.BeginFillColor = (*NewParticleSettings)[RandIndex(NewSettingSize)].BeginFillColor;
-	Ptrl_Settings.BeginBorderWith = (*NewParticleSettings)[RandIndex(NewSettingSize)].BeginBorderWith;
-	Ptrl_Settings.BeginRotation = (*NewParticleSettings)[RandIndex(NewSettingSize)].BeginRotation;
-	Ptrl_Settings.BeginScale = (*NewParticleSettings)[RandIndex(NewSettingSize)].BeginScale;
-	Ptrl_Settings.FadeOutDuration = (*NewParticleSettings)[RandIndex(NewSettingSize)].FadeOutDuration;
-	Ptrl_Settings.LifeTime = (*NewParticleSettings)[RandIndex(NewSettingSize)].LifeTime;
-}
-
-void Emitter::SortActionSequence()
-{
-	Emitter_Settings.ActionSequence.sort([](ParticleAction& PA1, ParticleAction& PA2)
-		{
-			if (PA1.when == ProcStatus::End &&
-				PA2.when == ProcStatus::Begin)
-				return true;
-			else return false;
-		});
 }
 
 std::vector<cocos2d::Point> Emitter::GetVertiesFromShapeList()
@@ -167,4 +138,57 @@ void Emitter::UpdateVertiesShapesIndex()
 	ShapeVertiesIndex += 1;
 	if (ShapeVertiesIndex > ShapeVertiesList.size() - 1)
 		ShapeVertiesIndex = 0;
+}
+
+
+
+ParticleSettings<2>& EmitterSettings::RandPtrlSettings()
+{
+	const int SettingSize = ParticleSettingsScope.size();
+	const auto RandIndex = [this](int size)->int {return cocos2d::RandomHelper::random_int(0, (size - 1)); };
+
+	return ParticleSettings<2>({
+		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginFillColor,
+		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginBorderColor,
+		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginBorderWith,
+		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginScale,
+		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginRotation,
+		(ParticleSettingsScope)[RandIndex(SettingSize)].FadeOutDuration,
+		(ParticleSettingsScope)[RandIndex(SettingSize)].LifeTime,
+		});
+	
+}
+
+void EmitterSettings::SortActionSequence()
+{
+	ActionSequence.sort([](ParticleAction& PA1, ParticleAction& PA2)
+		{
+			if (PA1.when == ProcStatus::End &&
+				PA2.when == ProcStatus::Begin)
+				return true;
+			else return false;
+		});
+}
+
+ParticleSettings<1> EmitterSettings::RandPtrlSettingItemsRange(ParticleSettings<2>* ParticleSetings)
+{
+
+	const auto RandRange = [this](float var1, float var2)->float 
+	{
+		return cocos2d::RandomHelper::random_real<float>(
+			std::min(var1,var2), std::max(var1,var2));
+	};
+
+	const cocos2d::Size RandSize = cocos2d::Size(RandRange(ParticleSetings->BeginScale[0].width, ParticleSetings->BeginScale[1].width),
+		RandRange(ParticleSetings->BeginScale[0].height, ParticleSetings->BeginScale[1].height));
+	
+	return ParticleSettings<1>({
+		ParticleSetings->BeginFillColor,
+		ParticleSetings->BeginBorderColor,
+		RandRange(ParticleSetings->BeginBorderWith[0],ParticleSetings->BeginBorderWith[1]),
+		RandSize,
+		RandRange(ParticleSetings->BeginRotation[0], ParticleSetings->BeginRotation[1]),
+		RandRange(ParticleSetings->FadeOutDuration[0],ParticleSetings->FadeOutDuration[1]),
+		RandRange(ParticleSetings->LifeTime[0],ParticleSetings->LifeTime[1])
+		});
 }

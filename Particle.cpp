@@ -3,25 +3,25 @@
 #include <algorithm>
 
 
-Particle::Particle(ParticleSettings& settings, cocos2d::Vec2 beginPosition,
+Particle::Particle(ParticleSettings<1>& settings, cocos2d::Vec2 beginPosition,
 	std::vector<cocos2d::Vec2> ShapeVerties,
 	std::list<ParticleAction>* ActionSequence, bool autoSpawn)
 {
 	IParticle::isAvailable_ = false;
 
-	FadeOutDuration = settings.FadeOutDuration;
-	LifeTime = settings.LifeTime;
+	FadeOutDuration = settings.FadeOutDuration[0];
+	LifeTime = settings.LifeTime[0];
 
 	this->ActionSequence = ActionSequence;
 	
 	
 	shape = cocos2d::DrawNode::create();
 	shape->setPosition(beginPosition);
-	shape->setScale(settings.BeginScale.width, settings.BeginScale.height);
-	shape->setRotation(settings.BeginRotation);
+	shape->setScale(settings.BeginScale[0].width, settings.BeginScale[0].height);
+	shape->setRotation(settings.BeginRotation[0]);
 
 	shape->drawPolygon(ShapeVerties.data(), ShapeVerties.size(),
-		cocos2d::Color4F(settings.BeginFillColor), settings.BeginBorderWith,
+		cocos2d::Color4F(settings.BeginFillColor), settings.BeginBorderWith[0],
 		cocos2d::Color4F(settings.BeginBorderColor)); 
 	shape->setOpacity(0);
 
