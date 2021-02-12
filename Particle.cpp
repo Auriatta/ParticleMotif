@@ -112,14 +112,15 @@ void Particle::ClearShape()
 
 void Particle::RunSpecificActionSequence(ProcStatus status)
 {
+	cocos2d::Action* newAction = nullptr;
 	for (ParticleAction& action : *ActionSequence)
 	{
-		if (action.when != status)
-			break;
-
-		auto newAction = action.action();
-		newAction->setTag((int)status);
-		shape->runAction(newAction);
+		if (action.when == status)
+		{
+			newAction = action.action();
+			newAction->setTag((int)status);
+			shape->runAction(newAction);
+		}
 	}
 }
 

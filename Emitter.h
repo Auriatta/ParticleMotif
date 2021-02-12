@@ -18,9 +18,9 @@ struct EmitterSettings
 	float RandSettings = true;
 	float RandVertiesShapes = false;
 
-	ParticleSettings<2>& RandPtrlSettings();
+	ParticleSettings<2>& RandParticleSettingsFromeScope();
 	void SortActionSequence();
-	ParticleSettings<1> RandPtrlSettingItemsRange(ParticleSettings<2>*ParticleSetings);
+	ParticleSettings<1> ConvertToSingleValueSettings(ParticleSettings<2>*ParticleSetings);
 };
 
 

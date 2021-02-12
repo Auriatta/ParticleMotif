@@ -61,7 +61,7 @@ void Emitter::Update()
 
 	Prtl_Buffer.push_back(std::unique_ptr<IParticle, ParticleDeleter>(
 		new Particle(
-			Emitter_Settings.RandPtrlSettingItemsRange(&Ptrl_Settings),
+			Emitter_Settings.ConvertToSingleValueSettings(&Ptrl_Settings),
 			GetNewPosition(),
 			GetVertiesFromShapeList(),
 			&Emitter_Settings.ActionSequence,
@@ -98,7 +98,7 @@ void Emitter::SetPtrlSettings()
 		else
 		{
 			if(Emitter_Settings.RandSettings)
-				Ptrl_Settings = Emitter_Settings.RandPtrlSettings();
+				Ptrl_Settings = Emitter_Settings.RandParticleSettingsFromeScope();
 			else
 				Ptrl_Settings = (*NewParticleSettings)[SettingIndex];
 		}
@@ -142,7 +142,7 @@ void Emitter::UpdateVertiesShapesIndex()
 
 
 
-ParticleSettings<2>& EmitterSettings::RandPtrlSettings()
+ParticleSettings<2>& EmitterSettings::RandParticleSettingsFromeScope()
 {
 	const int SettingSize = ParticleSettingsScope.size();
 	const auto RandIndex = [this](int size)->int {return cocos2d::RandomHelper::random_int(0, (size - 1)); };
@@ -163,14 +163,16 @@ void EmitterSettings::SortActionSequence()
 {
 	ActionSequence.sort([](ParticleAction& PA1, ParticleAction& PA2)
 		{
-			if (PA1.when == ProcStatus::End &&
+			if (PA1.when == ProcStatus::Begin &&
+				PA2.when == ProcStatus::End || 
+				PA1.when == ProcStatus::Begin &&
 				PA2.when == ProcStatus::Begin)
 				return true;
 			else return false;
 		});
 }
 
-ParticleSettings<1> EmitterSettings::RandPtrlSettingItemsRange(ParticleSettings<2>* ParticleSetings)
+ParticleSettings<1> EmitterSettings::ConvertToSingleValueSettings(ParticleSettings<2>* ParticleSetings)
 {
 
 	const auto RandRange = [this](float var1, float var2)->float 

@@ -58,7 +58,10 @@ void MPoliform::CreateEmitter_1()
 	emitter_s.Position = cocos2d::Vec2(500, 500);
 	emitter_s.UpdateRate = 1;
 	emitter_s.ActionSequence.push_back(
+		ParticleAction{ [this]()->cocos2d::Action* {return cocos2d::ScaleTo::create(2,0); }, ProcStatus::End });
+	emitter_s.ActionSequence.push_back(
 		ParticleAction{ [this]()->cocos2d::Action* {return cocos2d::FadeIn::create(1); }, ProcStatus::Begin });
+	
 	emitter_s.RandSettings = false;
 	emitter_s.RandVertiesShapes = false;
 	emitter_s.SettingsCopyEntirety = true;
