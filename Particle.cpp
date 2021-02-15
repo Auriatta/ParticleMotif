@@ -17,7 +17,7 @@ Particle::Particle(ParticleSettings<1>& settings, cocos2d::Vec2 beginPosition,
 	
 	shape = cocos2d::DrawNode::create();
 	shape->setPosition(beginPosition);
-	shape->setScale(settings.BeginScale[0].width, settings.BeginScale[0].height);
+	shape->setScale(settings.BeginScale[0]);
 	shape->setRotation(settings.BeginRotation[0]);
 
 	shape->drawPolygon(ShapeVerties.data(), ShapeVerties.size(),

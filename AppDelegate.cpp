@@ -69,13 +69,13 @@ static int register_all_packages()
 
 bool AppDelegate::applicationDidFinishLaunching() {
     // initialize director
-    auto director = cocos2d::Director::getInstance();
+    auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("Poliform", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+        glview = GLViewImpl::createWithRect("ParticleMotifs", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
 #else
-        glview = GLViewImpl::create("Poliform");
+        glview = GLViewImpl::create("ParticleMotifs");
 #endif
         director->setOpenGLView(glview);
     }
@@ -107,13 +107,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     register_all_packages();
 
-    // create a scene. it's an autorelease object
-    auto main = Main::createScene();
+	// create a scene. it's an autorelease object
+	auto main = Main::createScene();
 
-    // run
-    director->runWithScene(main);
-    
-    
+	// run
+	director->runWithScene(main);
 
     return true;
 }

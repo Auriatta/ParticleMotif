@@ -27,10 +27,7 @@
 #include "cocos2d.h"
 #include "MPoliform.h"
 
-#define BORDER_X_ORIGIN 0
-#define BORDER_Y_ORIGIN	0
-#define BORDER_WIDTH	800
-#define BORDER_HEIGHT	600
+
 
 class Main : public cocos2d::Scene
 {

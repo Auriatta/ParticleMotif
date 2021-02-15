@@ -1,23 +1,14 @@
-#include "MainScene.h"
+#pragma once
+#include "PreDefines.h"
 #include "Collision.h"
-
+#include "cocos2d.h"
 
 
 class AI
 {
-private:
-	cocos2d::Point _position;
-	cocos2d::Point _direction;
-
-protected:
-	void setPosition(cocos2d::Point _position) { this->_position = _position; };
-
-	void setDirection(cocos2d::Point _direction) { this->_direction = _direction; };
-	cocos2d::Point getDirection() { return _direction; };
-
 public:
 	AI()
-	{};
+	{}
 
 	virtual void update()=0;
 
@@ -26,6 +17,16 @@ public:
 	virtual void resetDirection() = 0;
 
 	~AI()=default;
+
+protected:
+	void setPosition(cocos2d::Point _position) { this->_position = _position; };
+
+	void setDirection(cocos2d::Point _direction) { this->_direction = _direction; };
+	cocos2d::Point getDirection() { return _direction; };
+
+private:
+	cocos2d::Point _position;
+	cocos2d::Point _direction;
 };
 
 
@@ -38,24 +39,11 @@ Bahavior:
 class AI_Basic
 	: public AI
 {
-private:
-	const cocos2d::Point dirModifier; // XY move length (per update) is modified by this value;
-
-
-	cocos2d::Point initPosition();
-	cocos2d::Point initDirection();
-	
-
-	void setOpositeDirection();
-	void updateDirection();
-
 public:
-	AI_Basic(cocos2d::Point _startPosition = cocos2d::Vec2(0,0))
-		: dirModifier(10,10)
+	AI_Basic(cocos2d::Point _startPosition = cocos2d::Vec2(0,0),
+		cocos2d::Point speed = cocos2d::Vec2(1, 1))
+		: dirModifier(speed)
 	{
-		if (_startPosition == cocos2d::Vec2(0, 0))
-			_startPosition = initPosition();
-
 		AI::setPosition(_startPosition);
 		AI::setDirection(initDirection());
 	}
@@ -64,4 +52,14 @@ public:
 	void resetDirection() override;
 
 	~AI_Basic() = default;
+
+private:
+	const cocos2d::Point dirModifier; // XY move length (per update) is modified by this value;
+
+
+	cocos2d::Point initDirection();
+
+
+	void setOpositeDirection();
+	void updateDirection();
 };

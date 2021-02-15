@@ -1,17 +1,12 @@
 #include "AI.h"
 
-cocos2d::Point AI_Basic::initPosition()
-{
-	const cocos2d::Point offset(50, 50);
-	return cocos2d::Point(BORDER_X_ORIGIN+offset.x,
-		BORDER_Y_ORIGIN+ offset.y);
-}
+
 
 cocos2d::Point AI_Basic::initDirection()
 {
 	return cocos2d::Point(
-		Random::random_int<int>(0,1) ? dirModifier.x : -(dirModifier.x),
-		Random::random_int<int>(0,1) ? dirModifier.y : -(dirModifier.y));
+		cocos2d::RandomHelper::random_int<int>(0,1) ? dirModifier.x : -(dirModifier.x),
+		cocos2d::RandomHelper::random_int<int>(0,1) ? dirModifier.y : -(dirModifier.y));
 }
 
 void AI_Basic::setOpositeDirection()
@@ -29,14 +24,12 @@ void AI_Basic::setOpositeDirection()
 
 void AI_Basic::updateDirection()
 {
-	if (Collision::isStuckOnBarrier(AI::getDirection()))
+	const cocos2d::Vec2 NewPosition = AI::getPosition() + AI::getDirection();
+	if (Collision::isStuckOnBarrier(NewPosition))
 		setOpositeDirection();
 
 	
-	AI::setPosition(
-		cocos2d::Point(
-			AI::getPosition().x + AI::getDirection().x,
-			AI::getPosition().y + AI::getDirection().y) );
+	AI::setPosition(NewPosition);
 }
 
 

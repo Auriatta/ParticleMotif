@@ -25,7 +25,7 @@ struct ParticleSettings
 	cocos2d::Color4B BeginFillColor = cocos2d::Color4B::WHITE;
 	cocos2d::Color4B BeginBorderColor = cocos2d::Color4B::BLACK;
 	std::array<float, Size> BeginBorderWith;
-	std::array<cocos2d::Size, Size> BeginScale;
+	std::array<float, Size> BeginScale;
 	std::array<float, Size> BeginRotation;
 	std::array<float, Size> FadeOutDuration;
 	std::array<float, Size> LifeTime;

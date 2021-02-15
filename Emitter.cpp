@@ -3,12 +3,12 @@
 
 Emitter::Emitter(EmitterSettings *emitter_settings,
 	std::vector < cocos2d::Point> verties)
-	: LifeCounter(0), Life(nullptr), 
+	: Life(nullptr), 
 	ShapeVertiesList(std::vector < std::vector<cocos2d::Point>>({verties})),
 	SettingIndex(0), ShapeVertiesIndex(0)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
-		assert("ParticleSettingsScope is Empty");
+		std::runtime_error("ParticleSettingsScope is Empty");
 
 	if(emitter_settings->ParticleSettingsScope.size() == 1)
 		Ptrl_Settings = emitter_settings->ParticleSettingsScope[0];
@@ -24,7 +24,7 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	SettingIndex(0), ShapeVertiesIndex(0)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
-		assert("ParticleSettingsScope is Empty");
+		std::runtime_error("ParticleSettingsScope is Empty");
 
 	if (emitter_settings->ParticleSettingsScope.size() == 1)
 		Ptrl_Settings = emitter_settings->ParticleSettingsScope[0];
@@ -164,9 +164,7 @@ void EmitterSettings::SortActionSequence()
 	ActionSequence.sort([](ParticleAction& PA1, ParticleAction& PA2)
 		{
 			if (PA1.when == ProcStatus::Begin &&
-				PA2.when == ProcStatus::End || 
-				PA1.when == ProcStatus::Begin &&
-				PA2.when == ProcStatus::Begin)
+				PA2.when == ProcStatus::End)
 				return true;
 			else return false;
 		});
@@ -181,14 +179,11 @@ ParticleSettings<1> EmitterSettings::ConvertToSingleValueSettings(ParticleSettin
 			std::min(var1,var2), std::max(var1,var2));
 	};
 
-	const cocos2d::Size RandSize = cocos2d::Size(RandRange(ParticleSetings->BeginScale[0].width, ParticleSetings->BeginScale[1].width),
-		RandRange(ParticleSetings->BeginScale[0].height, ParticleSetings->BeginScale[1].height));
-	
 	return ParticleSettings<1>({
 		ParticleSetings->BeginFillColor,
 		ParticleSetings->BeginBorderColor,
 		RandRange(ParticleSetings->BeginBorderWith[0],ParticleSetings->BeginBorderWith[1]),
-		RandSize,
+		RandRange(ParticleSetings->BeginScale[0], ParticleSetings->BeginScale[1]),
 		RandRange(ParticleSetings->BeginRotation[0], ParticleSetings->BeginRotation[1]),
 		RandRange(ParticleSetings->FadeOutDuration[0],ParticleSetings->FadeOutDuration[1]),
 		RandRange(ParticleSetings->LifeTime[0],ParticleSetings->LifeTime[1])

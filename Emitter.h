@@ -34,7 +34,7 @@ public:
 	virtual void Init() = 0;
 	virtual void Destroy() = 0;
 
-	
+	EmitterSettings* GetEmitterSettings() { return &Emitter_Settings; };
 protected:
 	virtual void Update() = 0;
 	virtual void SetPtrlSettings() = 0;
@@ -67,7 +67,6 @@ public:
 
 
 protected:
-	int LifeCounter;
 	int SettingIndex;
 	int ShapeVertiesIndex;
 	cocos2d::Action* Life;
