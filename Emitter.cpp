@@ -1,3 +1,22 @@
+/*
+* Copyright (c) <2021> <Alex 'Auriatta' Ates>.
+All rights reserved.
+
+Redistribution and use in source and binary forms are permitted provided
+that the above copyright notice and this paragraph are duplicated in all
+such forms and that any documentation, advertising materials, and other
+materials related to such distribution and use acknowledge that the software
+was developed by the <Alex 'Auriatta' Ates>.
+The name of the <Alex 'Auriatta' Ates> may not be used to endorse or promote
+products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND
+WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE.
+* Contact me at Auriattadev.com
+*/
+
 #include "Emitter.h"
 #include "MainScene.h"
 
@@ -5,47 +24,46 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	std::vector < cocos2d::Point> verties)
 	: Life(nullptr), 
 	ShapeVertiesList(std::vector < std::vector<cocos2d::Point>>({verties})),
-	SettingIndex(0), ShapeVertiesIndex(0)
+	ParticleSettingsIndex(0), ShapeVertiesIndex(0)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
 		std::runtime_error("ParticleSettingsScope is Empty");
 
 	if(emitter_settings->ParticleSettingsScope.size() == 1)
-		Ptrl_Settings = emitter_settings->ParticleSettingsScope[0];
+		ParticleSettings_ = emitter_settings->ParticleSettingsScope[0];
 	
-	Emitter_Settings = *emitter_settings;
+	EmitterSettings_ = *emitter_settings;
 
-	Emitter_Settings.SortActionSequence();
+	EmitterSettings_.SortActionSequence();
 }
 
 Emitter::Emitter(EmitterSettings *emitter_settings,
 	std::vector < std::vector<cocos2d::Point>> vertiesList)
 	: Life(nullptr), ShapeVertiesList(vertiesList),
-	SettingIndex(0), ShapeVertiesIndex(0)
+	ParticleSettingsIndex(0), ShapeVertiesIndex(0)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
 		std::runtime_error("ParticleSettingsScope is Empty");
 
 	if (emitter_settings->ParticleSettingsScope.size() == 1)
-		Ptrl_Settings = emitter_settings->ParticleSettingsScope[0];
+		ParticleSettings_ = emitter_settings->ParticleSettingsScope[0];
 	
-	Emitter_Settings = *emitter_settings;
+	EmitterSettings_ = *emitter_settings;
 
-	Emitter_Settings.SortActionSequence();
+	EmitterSettings_.SortActionSequence();
 }
 
 void Emitter::Init()
 {
-	Update();
-
 	Life = cocos2d::RepeatForever::create(
 		cocos2d::Sequence::create(
-		cocos2d::DelayTime::create(Emitter_Settings.UpdateRate),
+		cocos2d::DelayTime::create(EmitterSettings_.UpdateRate),
 		cocos2d::CallFunc::create(std::bind(&Emitter::Update, std::ref(*this))),
 		nullptr));
 
-	Update();
 	cocos2d::Director::getInstance()->getRunningScene()->runAction(Life);
+
+	Update();
 }
 
 void Emitter::Destroy()
@@ -57,104 +75,137 @@ void Emitter::Destroy()
 
 void Emitter::Update()
 {
-	SetPtrlSettings();
+	BuildParticleSettings();
 
-	Prtl_Buffer.push_back(std::unique_ptr<IParticle, ParticleDeleter>(
-		new Particle(
-			Emitter_Settings.ConvertToSingleValueSettings(&Ptrl_Settings),
-			GetNewPosition(),
-			GetVertiesFromShapeList(),
-			&Emitter_Settings.ActionSequence,
-			true
-		), ParticleDeleter()));
-
-
-	if (!Emitter_Settings.RandSettings)
-		UpdateSettingsIndex();
-
-	if (!Emitter_Settings.RandVertiesShapes)
-		UpdateVertiesShapesIndex();
+	SpawnNewParticle();
 }
 
-void Emitter::SetPtrlSettings()
+void Emitter::BuildParticleSettings()
 {
-	if (Emitter_Settings.ParticleSettingsScope.size() > 1)
+	if (EmitterSettings_.ParticleSettingsScope.size() > 1)
 	{
-		const std::vector<ParticleSettings<2>>* NewParticleSettings = &Emitter_Settings.ParticleSettingsScope;
-		const int PtrlSettingSize = NewParticleSettings->size(); 
+		const std::vector<ParticleSettings<2>>* NewParticleSettings = &EmitterSettings_.ParticleSettingsScope;
 		
-		if (Emitter_Settings.SettingsCopyEntirety)
-		{
-			if (Emitter_Settings.RandSettings)
-			{
-				const int index = cocos2d::RandomHelper::random_int(0, (PtrlSettingSize - 1));
-				Ptrl_Settings = (*NewParticleSettings)[index];
-			}
-			else
-			{
-				Ptrl_Settings = (*NewParticleSettings)[SettingIndex];
-			}
-		}
+		if (isOneTimeRandAvailable())
+			RandOneTimeIndex();
 		else
 		{
-			if(Emitter_Settings.RandSettings)
-				Ptrl_Settings = Emitter_Settings.RandParticleSettingsFromeScope();
+			if (!EmitterSettings_.RandVertiesShapes)
+				UpdateVertiesShapesIndex();
 			else
-				Ptrl_Settings = (*NewParticleSettings)[SettingIndex];
+				RandVertiesShapesIndex();
+
+
+			if (!EmitterSettings_.RandParticleSettings)
+				UpdateSettingsIndex();
+			else
+			{
+				if (EmitterSettings_.ShuffleParticleSettingsElements)
+				{
+					ParticleSettings_ = EmitterSettings_.RandParticleSettingsFromScope();
+					return;
+				}
+				else
+					RandSettingsIndex();
+			}
 		}
+
+		ParticleSettings_ = (*NewParticleSettings)[ParticleSettingsIndex];
 	}
+}
+
+void Emitter::SpawnNewParticle()
+{
+	Prtl_Buffer.push_back(std::unique_ptr<IParticle, ParticleDeleter>(
+		new Particle(
+			EmitterSettings_.ConvertToSingleValueSettings(&ParticleSettings_),
+			GetNewPosition(),
+			GetVertiesFromShapeList(),
+			&EmitterSettings_.ActionSequence,
+			true
+		), ParticleDeleter()));
 }
 
 std::vector<cocos2d::Point> Emitter::GetVertiesFromShapeList()
 {
-	if (Emitter_Settings.RandVertiesShapes)
-		return ShapeVertiesList.at(
-			cocos2d::RandomHelper::random_int(0, (int)ShapeVertiesList.size() - 1)
-		);
-	else
-		return ShapeVertiesList.at(ShapeVertiesIndex);
+	return ShapeVertiesList.at(ShapeVertiesIndex);
 }
 
 cocos2d::Vec2 Emitter::GetNewPosition()
 {
 	return {
 		cocos2d::RandomHelper::random_real<float>(
-			Emitter_Settings.Position.x + Emitter_Settings.ParticleSpawnBoundriesOffset.x,
-			Emitter_Settings.Position.x + Emitter_Settings.ParticleSpawnBoundriesOffset.w),
+			EmitterSettings_.Position->x + EmitterSettings_.ParticleSpawnBoundriesOffset.x,
+			EmitterSettings_.Position->x + EmitterSettings_.ParticleSpawnBoundriesOffset.w),
 		cocos2d::RandomHelper::random_real<float>(
-			Emitter_Settings.Position.y + Emitter_Settings.ParticleSpawnBoundriesOffset.y,
-			Emitter_Settings.Position.y + Emitter_Settings.ParticleSpawnBoundriesOffset.z) };
+			EmitterSettings_.Position->y + EmitterSettings_.ParticleSpawnBoundriesOffset.y,
+			EmitterSettings_.Position->y + EmitterSettings_.ParticleSpawnBoundriesOffset.z) };
+}
+
+bool Emitter::isOneTimeRandAvailable()
+{
+	if (EmitterSettings_.RandGlobalIndex &&
+		!EmitterSettings_.ShuffleParticleSettingsElements &&
+		EmitterSettings_.ParticleSettingsScope.size() ==
+		ShapeVertiesList.size())
+		return true;
+	else
+		return false;
+}
+
+void Emitter::RandOneTimeIndex()
+{
+	int Random = 0;
+	do
+	{
+		Random = cocos2d::RandomHelper::random_int<int>
+			(0, (ShapeVertiesList.size() - 1));
+	} while (ParticleSettingsIndex == Random);
+
+	ParticleSettingsIndex = ShapeVertiesIndex = Random;
+}
+
+void Emitter::RandVertiesShapesIndex()
+{
+	ShapeVertiesIndex = cocos2d::RandomHelper::random_int<int>
+		(0, (ShapeVertiesList.size() - 1));
+}
+
+void Emitter::RandSettingsIndex()
+{
+	ParticleSettingsIndex = cocos2d::RandomHelper::random_int<int>
+		(0, (EmitterSettings_.ParticleSettingsScope.size() - 1));
 }
 
 void Emitter::UpdateSettingsIndex()
 {
-	SettingIndex += 1;
-	if (SettingIndex > Emitter_Settings.ParticleSettingsScope.size() - 1)
-		SettingIndex = 0;
+	ParticleSettingsIndex++;
+	if (ParticleSettingsIndex > EmitterSettings_.ParticleSettingsScope.size() - 1)
+		ParticleSettingsIndex = 0;
 }
 
 void Emitter::UpdateVertiesShapesIndex()
 {
-	ShapeVertiesIndex += 1;
+	ShapeVertiesIndex++;
 	if (ShapeVertiesIndex > ShapeVertiesList.size() - 1)
 		ShapeVertiesIndex = 0;
 }
 
 
 
-ParticleSettings<2>& EmitterSettings::RandParticleSettingsFromeScope()
+ParticleSettings<2>& EmitterSettings::RandParticleSettingsFromScope()
 {
-	const int SettingSize = ParticleSettingsScope.size();
+	const int ContainerSize = ParticleSettingsScope.size();
 	const auto RandIndex = [this](int size)->int {return cocos2d::RandomHelper::random_int(0, (size - 1)); };
 
 	return ParticleSettings<2>({
-		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginFillColor,
-		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginBorderColor,
-		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginBorderWith,
-		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginScale,
-		(ParticleSettingsScope)[RandIndex(SettingSize)].BeginRotation,
-		(ParticleSettingsScope)[RandIndex(SettingSize)].FadeOutDuration,
-		(ParticleSettingsScope)[RandIndex(SettingSize)].LifeTime,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].BeginFillColor,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].BeginBorderColor,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].BeginBorderWith,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].BeginScale,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].BeginRotation,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].FadeOutDuration,
+		(ParticleSettingsScope)[RandIndex(ContainerSize)].LifeTime,
 		});
 	
 }
