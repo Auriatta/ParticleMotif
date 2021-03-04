@@ -33,7 +33,6 @@ struct ParticleAction
 {
 	std::function<cocos2d::Action* ()> action;
 	ProcStatus when;
-	
 };
 
 
@@ -48,6 +47,7 @@ struct ParticleSettings
 	std::array<float, Size> BeginRotation;
 	std::array<float, Size> FadeOutDuration;
 	std::array<float, Size> LifeTime;
+	std::array<int, Size>	ZOrderIndex;
 };
 
 
@@ -61,6 +61,7 @@ public:
 	virtual void Destroy() = 0;
 	virtual void Finish() = 0;
 	virtual bool isAvailable()=0;
+	virtual bool isNull() = 0;
 
 protected:
 	virtual void ClearShape() = 0;
@@ -81,6 +82,7 @@ public:
 	virtual bool isAvailable() override;
 	virtual void Finish() override;
 	virtual void Spawn() override;
+	virtual bool isNull() override;
 	bool Particle::isAnyActionRuning(ProcStatus);
 
 	~Particle();
@@ -89,6 +91,7 @@ protected:
 	std::list<ParticleAction>* ActionSequence;
 	float FadeOutDuration;
 	float LifeTime;
+	int ZOrderIndex;
 
 	virtual void ClearShape() override;
 	void RunSpecificActionSequence(ProcStatus);

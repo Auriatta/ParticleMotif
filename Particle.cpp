@@ -25,8 +25,9 @@ FOR A PARTICULAR PURPOSE.
 Particle::Particle(ParticleSettings<1>& settings, cocos2d::Vec2 beginPosition,
 	std::vector<cocos2d::Vec2> ShapeVerties,
 	std::list<ParticleAction>* ActionSequence, bool autoSpawn)
+	: ZOrderIndex(settings.ZOrderIndex[0])
 {
-	IParticle::isAvailable_ = false;
+	isAvailable_ = false;
 
 	FadeOutDuration = settings.FadeOutDuration[0];
 	LifeTime = settings.LifeTime[0];
@@ -51,13 +52,13 @@ Particle::Particle(ParticleSettings<1>& settings, cocos2d::Vec2 beginPosition,
 
 void Particle::Destroy()
 {
-	if (shape != nullptr && isAvailable())
+	if (!this->isNull() && isAvailable())
 	{
 		isAvailable_ = false;
 
 		shape->runAction(cocos2d::Sequence::create(cocos2d::FadeOut::create(FadeOutDuration),
 			cocos2d::CallFunc::create([this]() {
-				if (shape != nullptr)
+				if (!this->isNull())
 					this->~Particle();
 				}),
 			nullptr));
@@ -66,7 +67,7 @@ void Particle::Destroy()
 
 bool Particle::isAvailable()
 {
-	return isAvailable_;
+	return (isAvailable_);
 }
 
 void Particle::Finish()
@@ -78,8 +79,10 @@ void Particle::Finish()
 			cocos2d::DelayTime::create(0.2),
 			cocos2d::CallFunc::create(
 				[this, KillCheck]() {
+					if (this == NULL)
+						cocos2d::Director::getInstance()->getActionManager()->removeAction(KillCheck);
 
-					if (!this->isAnyActionRuning(ProcStatus::End) && this->isAvailable())
+					if (this->isAvailable() && !this->isAnyActionRuning(ProcStatus::End))
 					{
 						this->Destroy();
 					}
@@ -94,7 +97,7 @@ void Particle::Finish()
 void Particle::Spawn()
 {
 	
-	cocos2d::Director::getInstance()->getRunningScene()->addChild(shape, 1);
+	cocos2d::Director::getInstance()->getRunningScene()->addChild(shape, ZOrderIndex);
 	
 
 	shape->runAction(cocos2d::Sequence::create(
@@ -106,6 +109,11 @@ void Particle::Spawn()
 	isAvailable_ = true;
 }
 
+bool Particle::isNull()
+{
+	return (shape == nullptr);
+}
+
 bool Particle::isAnyActionRuning(ProcStatus status)
 {
 	return (shape->getActionByTag((int)status));
@@ -113,14 +121,15 @@ bool Particle::isAnyActionRuning(ProcStatus status)
 
 Particle::~Particle()
 {
-	if (shape != nullptr)
+	isAvailable_ = false;
+	if (!this->isNull())
 		shape->stopAllActions();
 	ClearShape();
 }
 
 void Particle::ClearShape()
 {
-	if (shape != nullptr)
+	if (!this->isNull())
 	{
 		shape->clear();
 		shape->cleanup();

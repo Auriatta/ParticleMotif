@@ -24,7 +24,8 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	std::vector < cocos2d::Point> verties)
 	: Life(nullptr), 
 	ShapeVertiesList(std::vector < std::vector<cocos2d::Point>>({verties})),
-	ParticleSettingsIndex(0), ShapeVertiesIndex(0)
+	ParticleSettingsIndex(0), ShapeVertiesIndex(0),
+	DestroyStatus_(DestroyStatus::None)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
 		std::runtime_error("ParticleSettingsScope is Empty");
@@ -40,7 +41,8 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 Emitter::Emitter(EmitterSettings *emitter_settings,
 	std::vector < std::vector<cocos2d::Point>> vertiesList)
 	: Life(nullptr), ShapeVertiesList(vertiesList),
-	ParticleSettingsIndex(0), ShapeVertiesIndex(0)
+	ParticleSettingsIndex(0), ShapeVertiesIndex(0),
+	DestroyStatus_(DestroyStatus::None)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
 		std::runtime_error("ParticleSettingsScope is Empty");
@@ -68,16 +70,28 @@ void Emitter::Init()
 
 void Emitter::Destroy()
 {
-	Prtl_Buffer.clear();
+	DestroyStatus_ = DestroyStatus::Waiting;
+}
+
+Emitter::~Emitter()
+{
+	ParticleBuffer.clear();
 	cocos2d::Director::getInstance()->getRunningScene()->stopAction(Life);
 	delete this;
 }
 
 void Emitter::Update()
 {
-	BuildParticleSettings();
+	if (DestroyStatus_ == DestroyStatus::None)
+	{
+		BuildParticleSettings();
 
-	SpawnNewParticle();
+		SpawnNewParticle();
+	}
+	else
+		CheckDestroyStatus();
+
+	
 }
 
 void Emitter::BuildParticleSettings()
@@ -116,7 +130,7 @@ void Emitter::BuildParticleSettings()
 
 void Emitter::SpawnNewParticle()
 {
-	Prtl_Buffer.push_back(std::unique_ptr<IParticle, ParticleDeleter>(
+	ParticleBuffer.push_back(std::unique_ptr<IParticle, ParticleDeleter>(
 		new Particle(
 			EmitterSettings_.ConvertToSingleValueSettings(&ParticleSettings_),
 			GetNewPosition(),
@@ -124,6 +138,27 @@ void Emitter::SpawnNewParticle()
 			&EmitterSettings_.ActionSequence,
 			true
 		), ParticleDeleter()));
+}
+
+void Emitter::CheckDestroyStatus()
+{
+	switch (DestroyStatus_)
+	{
+	case DestroyStatus::Waiting:
+		if (ParticleBuffer.empty())
+			DestroyStatus_ = DestroyStatus::Ready;
+		else
+			break;
+	
+	case DestroyStatus::Ready:
+		this->~Emitter();
+		return;
+	
+	default:
+		return;
+	}
+		
+
 }
 
 std::vector<cocos2d::Point> Emitter::GetVertiesFromShapeList()
@@ -135,11 +170,11 @@ cocos2d::Vec2 Emitter::GetNewPosition()
 {
 	return {
 		cocos2d::RandomHelper::random_real<float>(
-			EmitterSettings_.Position->x + EmitterSettings_.ParticleSpawnBoundriesOffset.x,
-			EmitterSettings_.Position->x + EmitterSettings_.ParticleSpawnBoundriesOffset.w),
+			EmitterSettings_.Position.x + EmitterSettings_.ParticleSpawnBoundriesOffset.x,
+			EmitterSettings_.Position.x + EmitterSettings_.ParticleSpawnBoundriesOffset.w),
 		cocos2d::RandomHelper::random_real<float>(
-			EmitterSettings_.Position->y + EmitterSettings_.ParticleSpawnBoundriesOffset.y,
-			EmitterSettings_.Position->y + EmitterSettings_.ParticleSpawnBoundriesOffset.z) };
+			EmitterSettings_.Position.y + EmitterSettings_.ParticleSpawnBoundriesOffset.y,
+			EmitterSettings_.Position.y + EmitterSettings_.ParticleSpawnBoundriesOffset.z) };
 }
 
 bool Emitter::isOneTimeRandAvailable()
@@ -223,12 +258,13 @@ void EmitterSettings::SortActionSequence()
 
 ParticleSettings<1> EmitterSettings::ConvertToSingleValueSettings(ParticleSettings<2>* ParticleSetings)
 {
-
+	
 	const auto RandRange = [this](float var1, float var2)->float 
 	{
 		return cocos2d::RandomHelper::random_real<float>(
 			std::min(var1,var2), std::max(var1,var2));
 	};
+
 
 	return ParticleSettings<1>({
 		ParticleSetings->BeginFillColor,
@@ -237,6 +273,7 @@ ParticleSettings<1> EmitterSettings::ConvertToSingleValueSettings(ParticleSettin
 		RandRange(ParticleSetings->BeginScale[0], ParticleSetings->BeginScale[1]),
 		RandRange(ParticleSetings->BeginRotation[0], ParticleSetings->BeginRotation[1]),
 		RandRange(ParticleSetings->FadeOutDuration[0],ParticleSetings->FadeOutDuration[1]),
-		RandRange(ParticleSetings->LifeTime[0],ParticleSetings->LifeTime[1])
+		RandRange(ParticleSetings->LifeTime[0],ParticleSetings->LifeTime[1]),
+		(int)RandRange(ParticleSetings->ZOrderIndex[0], ParticleSetings->ZOrderIndex[1])
 		});
 }

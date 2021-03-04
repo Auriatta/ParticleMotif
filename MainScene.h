@@ -25,29 +25,29 @@
 #define __MAIN_SCENE_H__
 #pragma once
 #include "cocos2d.h"
-#include "MPoliform.h"
+#include "Motif_WhiteWall.h"
+#include "MotifExpositionMenager.h"
 
 
 
 class Main : public cocos2d::Scene
 {
 
-
 public:
     Main()
-        : poliform(nullptr)
+        : MotifExposition(nullptr)
     {}
 
+    std::list<Motif_WhiteWall*> motifs;
+    std::unique_ptr<SequencedShow<Motif_WhiteWall>> MotifExposition;
 
     static cocos2d::Scene* createScene();
 
-    MPoliform* poliform;
     virtual bool init();
     virtual void onEnter();
+    virtual void update(float);
 
     CREATE_FUNC(Main);
-
-    
 };
 
 

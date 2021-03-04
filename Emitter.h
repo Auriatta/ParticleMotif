@@ -39,7 +39,7 @@ struct EmitterSettings
 {
 	std::vector<ParticleSettings<2>> ParticleSettingsScope;
 	cocos2d::Vec4 ParticleSpawnBoundriesOffset;
-	cocos2d::Vec2* Position;
+	cocos2d::Vec2 Position;
 	std::list<ParticleAction> ActionSequence;
 	float UpdateRate = 1;
 	bool ShuffleParticleSettingsElements = false;
@@ -65,13 +65,22 @@ public:
 	virtual void SpawnNewParticle() = 0;
 
 	EmitterSettings* GetEmitterSettings() { return &EmitterSettings_; };
+
+	static enum class DestroyStatus
+	{
+		None,
+		Waiting,
+		Ready
+	};
+
 protected:
 	virtual void Update() = 0;
 	virtual void BuildParticleSettings() = 0;
 
+	
+
 	ParticleSettings<2> ParticleSettings_;
 	EmitterSettings EmitterSettings_;
-
 };
 
 
@@ -95,18 +104,24 @@ public:
 	virtual void Init() override;
 	virtual void Destroy();
 
+private: ~Emitter();
 
 protected:
+	
+	DestroyStatus DestroyStatus_;
+	bool ReadyToDestroy;
 	int ParticleSettingsIndex;
 	int ShapeVertiesIndex;
 	cocos2d::Action* Life;
 	std::vector < std::vector<cocos2d::Point>> ShapeVertiesList;
-	std::list<std::unique_ptr<IParticle, ParticleDeleter>> Prtl_Buffer;
+	std::list<std::unique_ptr<IParticle, ParticleDeleter>> ParticleBuffer;
 
 
 	virtual void Update() override;
 	virtual void BuildParticleSettings() override;
 	virtual void SpawnNewParticle() override;
+
+	void CheckDestroyStatus();
 
 	std::vector<cocos2d::Point> GetVertiesFromShapeList();
 	cocos2d::Vec2 GetNewPosition();

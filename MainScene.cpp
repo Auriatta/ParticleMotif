@@ -47,10 +47,13 @@ bool Main::init()
         return false;
     }
 
+
     cocos2d::LayerColor* bg_layer = cocos2d::LayerColor::create(
         cocos2d::Color4B(246, 248, 248, 240), 1920, 1080);
     this->addChild(bg_layer, 0);
    
+    this->scheduleUpdate();
+
     return true;
 }
 
@@ -58,10 +61,15 @@ void Main::onEnter()
 {
     Scene::onEnter();
 
-    if (poliform == nullptr)
-    {
-        poliform = new MPoliform;
-        poliform->Run();
-    }
+    if(!MotifExposition)
+        MotifExposition = std::make_unique<SequencedShow<Motif_WhiteWall>>
+        (SequencedShow<Motif_WhiteWall>(&motifs, 10, 1, 15, 0.23));
 
 }
+
+void Main::update(float delta)
+{
+    if (MotifExposition)
+        (*MotifExposition).Update(delta);
+}
+
