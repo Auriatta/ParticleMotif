@@ -24,6 +24,8 @@ class IMotif
 {
 public: 
 	virtual void Run() = 0;
+	virtual void TurnOffAllEmitters() = 0;
+	virtual void TurnOnAllEmitters() = 0;
 
 protected: 
 

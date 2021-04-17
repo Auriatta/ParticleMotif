@@ -27,8 +27,10 @@ FOR A PARTICULAR PURPOSE.
 class Motif_WhiteWall : public Motif
 {
 public:
-
 	Motif_WhiteWall();
+
+	virtual void TurnOnAllEmitters();
+	virtual void TurnOffAllEmitters();
 
 	~Motif_WhiteWall();
 

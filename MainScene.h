@@ -26,6 +26,7 @@
 #pragma once
 #include "cocos2d.h"
 #include "Motif_WhiteWall.h"
+#include "Motif_PlusShape.h"
 #include "MotifExpositionMenager.h"
 
 
@@ -35,11 +36,10 @@ class Main : public cocos2d::Scene
 
 public:
     Main()
-        : MotifExposition(nullptr)
+        : MotifExpositionWhiteWall(nullptr)
     {}
 
-    std::list<Motif_WhiteWall*> motifs;
-    std::unique_ptr<SequencedShow<Motif_WhiteWall>> MotifExposition;
+    std::unique_ptr<MotifExposition<Motif_WhiteWall>> MotifExpositionWhiteWall;
 
     static cocos2d::Scene* createScene();
 

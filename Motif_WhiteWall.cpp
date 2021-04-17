@@ -19,12 +19,22 @@ FOR A PARTICULAR PURPOSE.
 
 #include "Motif_WhiteWall.h"
 
+void Motif_WhiteWall::TurnOnAllEmitters()
+{
+	Emitter_->Play();
+}
+
+void Motif_WhiteWall::TurnOffAllEmitters()
+{
+	Emitter_->Stop();
+}
+
 Motif_WhiteWall::Motif_WhiteWall()
 {
 	Position = GetRandomPositionFromBorderBox(
 		cocos2d::Vec4(
-			BORDER_X_ORIGIN, BORDER_Y_ORIGIN,
-			BORDER_HEIGHT, BORDER_WIDTH));
+			BORDER_X_ORIGIN-100, BORDER_Y_ORIGIN-100,
+			BORDER_HEIGHT+100, BORDER_WIDTH+100));
 
 	RefreshRate = 0.3;
 	CreateEmitter();
@@ -119,7 +129,7 @@ void Motif_WhiteWall::CreateEmitter()
 	emitter_s.ParticleSettingsScope.push_back(prtl_s[2]);
 	emitter_s.ParticleSettingsScope.push_back(prtl_s[3]);
 	emitter_s.ParticleSettingsScope.push_back(prtl_s[4]);
-	emitter_s.ParticleSpawnBoundriesOffset = cocos2d::Vec4(-70, -100, 100, 70);
+	emitter_s.ParticleSpawnBoundriesOffset = cocos2d::Vec4(-100, -125, 125, 100);
 	emitter_s.Position = Position;
 	emitter_s.UpdateRate = 1;
 	emitter_s.RandParticleSettings = true;

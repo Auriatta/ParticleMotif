@@ -51,7 +51,7 @@ bool Main::init()
     cocos2d::LayerColor* bg_layer = cocos2d::LayerColor::create(
         cocos2d::Color4B(246, 248, 248, 240), 1920, 1080);
     this->addChild(bg_layer, 0);
-   
+    
     this->scheduleUpdate();
 
     return true;
@@ -60,16 +60,12 @@ bool Main::init()
 void Main::onEnter()
 {
     Scene::onEnter();
-
-    if(!MotifExposition)
-        MotifExposition = std::make_unique<SequencedShow<Motif_WhiteWall>>
-        (SequencedShow<Motif_WhiteWall>(&motifs, 10, 1, 15, 0.23));
-
+    MotifExpositionWhiteWall = std::make_unique< MotifExposition<Motif_WhiteWall>>
+        (MotifExposition<Motif_WhiteWall>(1,10,4));
+    MotifExpositionWhiteWall->Run();
 }
 
 void Main::update(float delta)
 {
-    if (MotifExposition)
-        (*MotifExposition).Update(delta);
+    
 }
-

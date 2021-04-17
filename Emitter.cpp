@@ -25,7 +25,7 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	: Life(nullptr), 
 	ShapeVertiesList(std::vector < std::vector<cocos2d::Point>>({verties})),
 	ParticleSettingsIndex(0), ShapeVertiesIndex(0),
-	DestroyStatus_(DestroyStatus::None)
+	DestroyStatus_(DestroyStatus::None), isPaused(false)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
 		std::runtime_error("ParticleSettingsScope is Empty");
@@ -42,7 +42,7 @@ Emitter::Emitter(EmitterSettings *emitter_settings,
 	std::vector < std::vector<cocos2d::Point>> vertiesList)
 	: Life(nullptr), ShapeVertiesList(vertiesList),
 	ParticleSettingsIndex(0), ShapeVertiesIndex(0),
-	DestroyStatus_(DestroyStatus::None)
+	DestroyStatus_(DestroyStatus::None), isPaused(false)
 {
 	if (emitter_settings->ParticleSettingsScope.empty())
 		std::runtime_error("ParticleSettingsScope is Empty");
@@ -82,7 +82,7 @@ Emitter::~Emitter()
 
 void Emitter::Update()
 {
-	if (DestroyStatus_ == DestroyStatus::None)
+	if (DestroyStatus_ == DestroyStatus::None && !isPaused)
 	{
 		BuildParticleSettings();
 
@@ -138,6 +138,16 @@ void Emitter::SpawnNewParticle()
 			&EmitterSettings_.ActionSequence,
 			true
 		), ParticleDeleter()));
+}
+
+void Emitter::Play()
+{
+	isPaused = false;
+}
+
+void Emitter::Stop()
+{
+	isPaused = true;
 }
 
 void Emitter::CheckDestroyStatus()

@@ -63,6 +63,8 @@ public:
 	virtual void Init() = 0;
 	virtual void Destroy() = 0;
 	virtual void SpawnNewParticle() = 0;
+	virtual void Stop() = 0;
+	virtual void Play() = 0;
 
 	EmitterSettings* GetEmitterSettings() { return &EmitterSettings_; };
 
@@ -103,13 +105,15 @@ public:
 
 	virtual void Init() override;
 	virtual void Destroy();
+	virtual void Play() override;
+	virtual void Stop() override;
 
 private: ~Emitter();
 
 protected:
 	
 	DestroyStatus DestroyStatus_;
-	bool ReadyToDestroy;
+	bool isPaused;
 	int ParticleSettingsIndex;
 	int ShapeVertiesIndex;
 	cocos2d::Action* Life;
