@@ -61,7 +61,7 @@ void Main::onEnter()
 {
     Scene::onEnter();
     MotifExpositionWhiteWall = std::make_unique< MotifExposition<Motif_WhiteWall>>
-        (MotifExposition<Motif_WhiteWall>(1,10,4));
+        (MotifExposition<Motif_WhiteWall>(1,5,40,0.2));
     MotifExpositionWhiteWall->Run();
 }
 

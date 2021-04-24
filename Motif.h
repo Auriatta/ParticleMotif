@@ -26,6 +26,7 @@ public:
 	virtual void Run() = 0;
 	virtual void TurnOffAllEmitters() = 0;
 	virtual void TurnOnAllEmitters() = 0;
+	virtual void SetPosition(cocos2d::Vec2 Position) = 0;
 
 protected: 
 

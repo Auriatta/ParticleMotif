@@ -4,91 +4,6 @@
 #include <string>
 
 template<typename T>
-class SequencedShow
-{
-public:
-	SequencedShow(std::list<T*>* MotifListRef,
-		float ShowedDelay, float HiddenDelay,
-		float MotifNumber = 1, float TickInterval = 0.2)
-		: ShowedDelay(ShowedDelay), TickInterval(TickInterval),
-		TickCounter(0), MotifNumber(MotifNumber), GoalSwitch(0),
-		MotifListRef(MotifListRef), HiddenDelay(HiddenDelay)
-	{}
-		
-
-	void SequencedShow<T>::Update(float delta);
-
-	~SequencedShow() = default;
-private:
-	int MotifNumber;
-	std::list<T*>* MotifListRef;
-	float TickCounter;
-	bool GoalSwitch;
-	float ShowedDelay;
-	float HiddenDelay;
-	float TickInterval;
-	
-	bool AddOne();
-
-	bool RemoveOne();
-	
-};
-
-template<class T>
-inline void SequencedShow<T>::Update(float delta)
-{
-	TickCounter += delta;
-	if (modf(TickCounter / TickInterval, &delta) > 0.06)
-		return;
-
-	if (GoalSwitch && TickCounter > ShowedDelay)
-	{
-		if (!RemoveOne())
-		{
-			TickCounter = 0;
-			GoalSwitch = 0;
-			return;
-		}
-	}
-
-	if (!GoalSwitch && TickCounter > HiddenDelay)
-	{
-		if (!AddOne())
-		{
-			TickCounter = 0;
-			GoalSwitch = 1;
-			return;
-		}
-	}
-}
-
-template<class T>
-inline bool SequencedShow<T>::AddOne()
-{
-	if (MotifListRef->size() >= MotifNumber)
-		return false;
-	else
-	{
-		MotifListRef->push_front(new T());
-		MotifListRef->front()->Run();
-	}
-	return true;
-}
-
-template<class T>
-inline bool SequencedShow<T>::RemoveOne()
-{
-	if (MotifListRef->empty())
-		return false;
-	else
-	{
-		delete MotifListRef->front();
-		MotifListRef->pop_front();
-	}
-	return true;
-}
-
-template<typename T>
 class IMotifExposition
 {
 public:
@@ -98,6 +13,7 @@ public:
 	virtual void Update() = 0;
 	std::list<T*>* GetMotifList() { return &MotifBuffer;  };
 
+	~IMotifExposition() = default;
 protected:
 	virtual bool CreateOne() = 0;
 	virtual bool Show() = 0;
@@ -116,7 +32,8 @@ class MotifExposition : IMotifExposition<T>
 public:
 	MotifExposition(float DelayToShow, float DelayToHide,
 		int MotifAmount = 1, float TickInterval = 0.2)
-
+		: TickInterval(TickInterval), DelayToShow(DelayToShow), DelayToHide(DelayToHide),
+		ScheduleName("MainUpdate"), TickCounter(0)
 	{
 		IMotifExposition<T>::MotifAmount = MotifAmount;
 		IMotifExposition<T>::MotifBuffer_it = MotifBuffer.begin();
@@ -125,32 +42,33 @@ public:
 	virtual void Run();
 	virtual void Update();
 
+	~MotifExposition()
+	{
+		// clear the mess
+	}
+
 protected:
-	int MotifIndex;
 	float TickCounter;
 	bool GoalSwitch;
-	float ShowedDelay;
-	float HiddenDelay;
+	float DelayToShow;
+	float DelayToHide;
 	float TickInterval;
+	std::string ScheduleName;
 
 	virtual bool CreateOne();
 	virtual bool Show();
 	virtual bool Hide();
-	void ScheduleUpdate(float TickInterval, string Name, _FX Func);
 
-	virtual void DestroyAll();
 
 };
+
 
 template<class T>
 inline void MotifExposition<T>::Run()
 {
-	for (int i = 0; i < MotifAmount; i++)
-	{
-		CreateOne();
-	}
-
-	ScheduleUpdate(TickInterval, "MainPoliformUpdate")
+	cocos2d::Director::getInstance()->getScheduler()->schedule(
+		cocos2d::ccSchedulerFunc(std::bind(&MotifExposition<T>::Update, this)),
+		this, TickInterval, 0, ScheduleName);
 }
 
 template<class T>
@@ -160,7 +78,7 @@ inline void MotifExposition<T>::Update()
 	{
 		TickCounter += TickInterval;
 
-		if (GoalSwitch && TickCounter > ShowedDelay)
+		if (GoalSwitch && TickCounter > DelayToHide)
 		{
 			if (!Hide())
 			{
@@ -170,7 +88,7 @@ inline void MotifExposition<T>::Update()
 			}
 		}
 
-		if (!GoalSwitch && TickCounter > HiddenDelay)
+		if (!GoalSwitch && TickCounter > DelayToShow)
 		{
 			if (!Show())
 			{
@@ -215,16 +133,77 @@ inline bool MotifExposition<T>::Hide()
 	return true;
 }
 
-template<class T>
-inline void MotifExposition<T>::DestroyAll()
-{
 
+
+
+class IMotifExpositionMultiTick
+{
+	/*
+	* @Param TickIntervalShow - Refresh rate for single motif at showing status
+	* @Param TickIntervalHide - Refresh rate for single motif at hiding status
+	* @param TickIntervalInit - Refresh rate for single motif creation
+	*/
+public:
+	IMotifExpositionMultiTick(float TickIntervalShow = 0.2,
+		float TickIntervalHide = 0.2, float TickIntervalInit = 0.4)
+	{}
+
+protected:
+	virtual void SwitchToTickIntervalShow() = 0;
+	virtual void SwitchToTickIntervalHide() = 0;
+};
+
+
+template<typename T>
+class MotifExpositionRandom : MotifExposition<T>, IMotifExpositionMultiTick
+{
+public:
+	MotifExpositionRandom()
+		: MotifExposition<T>(),
+		IMotifExpositionMultiTick()
+	{}
+
+
+	virtual void Update() override();
+
+protected:
+
+	virtual bool CreateOne() override();
+	virtual void SwitchToTickIntervalShow();
+	virtual void SwitchToTickIntervalHide();
+
+
+	cocos2d::Vec2 GetRandomPosition();
+};
+
+
+template<class T>
+inline bool MotifExpositionRandom<T>::CreateOne()
+{
+	if (MotifBuffer.size() >= MotifAmount)
+		return false;
+	else
+	{
+		MotifBuffer.push_front(new T());
+		MotifBuffer.front()->SetPosition(GetRandomPosition());
+		MotifBuffer.front()->Run();
+	}
+	return true;
 }
 
+
 template<class T>
-inline void MotifExposition<T>::ScheduleUpdate(float TickInterval, string Name, _FX Func)
+inline void MotifExpositionRandom<T>::Update()
 {
-	cocos2d::Director::getInstance()->getScheduler()->schedule(
-		cocos2d::ccSchedulerFunc(std::bind(Func, this)),
-		this, TickInterval, 0, Name);
+	if (MotifBuffer.size() >= MotifAmount)
+	{
+		if (MotifExposition<T>::GoalSwitch == 0)
+		{
+			SwitchToTickIntervalHide(); // do once
+		}
+		else
+			SwitchToTickIntervalShow(); // do once
+	}
+
+	MotifExposition<T>::Update();
 }
