@@ -25,11 +25,11 @@ FOR A PARTICULAR PURPOSE.
 /*
 @PARAM SettingsCopyEntirety: Copy entire setting struct or every element separately
 
-@PARAM RandParticleSettings: Randomise ParticleSettingsScope index based on container size
+@PARAM RandParticleSettings: Randomize ParticleSettingsScope index based on container size
 
-@PARAM RandVertiesShapes: Randomise VertiesShapes index based on container size
+@PARAM RandVertiesShapes: Randomize VertiesShapes index based on container size
 
-@PARAM RandGlobalIndex: Randomise index once globally, for VertiesShapes and ParticleSettingsScope
+@PARAM RandGlobalIndex: Randomize index once globally, for VertiesShapes and ParticleSettingsScope
 Required:
 - ParticleSettingsScope and VertiesShapes SAME containers size
 - ShuffleParticleSettingsElements set to FALSE
