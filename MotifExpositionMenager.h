@@ -60,21 +60,19 @@ public:
 	virtual void Run() override;
 	virtual void Update() override;
 
-	
 
 protected:
+	virtual bool CreateOne() override;
+	virtual bool Show() override;
+	virtual bool Hide() override;
+
+
 	float TickCounter;
 	bool GoalSwitch;
 	float DelayToShow;
 	float DelayToHide;
 	float TickInterval;
 	std::string ScheduleName;
-
-	virtual bool CreateOne() override;
-	virtual bool Show() override;
-	virtual bool Hide() override;
-
-
 };
 
 
@@ -171,5 +169,3 @@ protected:
 	float TickIntervalHide;
 	
 };
-
-

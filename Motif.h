@@ -28,8 +28,7 @@ public:
 	virtual void TurnOnAllEmitters() = 0;
 	virtual void SetPosition(cocos2d::Vec2 Position) = 0;
 
-protected: 
-
+protected:
 
 	virtual void Update() = 0;
 	virtual void Destroy() = 0;
@@ -44,11 +43,13 @@ public:
 
 	virtual void Run() override;
 	virtual void Destroy() override;
+	virtual void SetPosition(cocos2d::Vec2 Position) override { this->Position = Position; };
 
 	~Motif();
 
 protected:
 	float RefreshRate;
+	cocos2d::Vec2 Position;
 
 	virtual void Update() override;
 };

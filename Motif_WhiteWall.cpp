@@ -29,12 +29,13 @@ void Motif_WhiteWall::TurnOffAllEmitters()
 	Emitter_->Stop();
 }
 
+
 Motif_WhiteWall::Motif_WhiteWall()
 {
 	Position = GetRandomPositionFromBorderBox(
 		cocos2d::Vec4(
-			BORDER_X_ORIGIN-100, BORDER_Y_ORIGIN-100,
-			BORDER_HEIGHT+100, BORDER_WIDTH+100));
+			BORDER_X_ORIGIN - 100, BORDER_Y_ORIGIN - 100,
+			BORDER_HEIGHT + 100, BORDER_WIDTH + 100));
 
 	RefreshRate = 0.3;
 	CreateEmitter();

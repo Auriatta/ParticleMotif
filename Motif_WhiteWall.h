@@ -29,15 +29,15 @@ class Motif_WhiteWall : public Motif
 public:
 	Motif_WhiteWall();
 
-	virtual void TurnOnAllEmitters();
-	virtual void TurnOffAllEmitters();
+	virtual void TurnOnAllEmitters() override;
+	virtual void TurnOffAllEmitters() override;
+	
 
 	~Motif_WhiteWall();
 
 private:
 	
 	Emitter* Emitter_;
-	cocos2d::Vec2 Position;
 
 	void CreateEmitter();
 	cocos2d::Vec2 GetRandomPositionFromBorderBox(cocos2d::Vec4& BorderBox);

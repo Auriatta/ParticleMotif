@@ -34,6 +34,7 @@ void Motif::Destroy()
 	Motif::~Motif();
 }
 
+
 Motif::~Motif()
 {
 	cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
