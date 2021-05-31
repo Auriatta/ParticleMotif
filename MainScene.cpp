@@ -54,15 +54,23 @@ bool Main::init()
     
     this->scheduleUpdate();
 
+
     return true;
 }
 
 void Main::onEnter()
 {
     Scene::onEnter();
-    MotifExpositionWhiteWall = std::make_unique< MotifExposition<Motif_WhiteWall>>
-        (MotifExposition<Motif_WhiteWall>(1,5,40,0.2));
-    MotifExpositionWhiteWall->Run();
+
+    typedef Motif_WhiteWall Mf;
+
+    MotifExpoRandomSample = std::make_unique<
+        MotifExpositionRandom<Mf>>(MotifExposition<Mf>(1, 5, 40, 0.3),
+            cocos2d::Vec4(
+                BORDER_X_ORIGIN - 100, BORDER_Y_ORIGIN - 100,
+                BORDER_HEIGHT + 100, BORDER_WIDTH + 100), 0.1, 0.1);
+
+    MotifExpoRandomSample->Run();
 }
 
 void Main::update(float delta)

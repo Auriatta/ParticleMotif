@@ -31,7 +31,7 @@ public:
 
 	virtual void TurnOnAllEmitters() override;
 	virtual void TurnOffAllEmitters() override;
-	
+	virtual void Init() override;
 
 	~Motif_WhiteWall();
 
@@ -40,6 +40,5 @@ private:
 	Emitter* Emitter_;
 
 	void CreateEmitter();
-	cocos2d::Vec2 GetRandomPositionFromBorderBox(cocos2d::Vec4& BorderBox);
 };
 

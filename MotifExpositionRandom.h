@@ -19,92 +19,48 @@ FOR A PARTICULAR PURPOSE.
 * Contact me at Auriattadev.com
 */
 
-#include "MotifExpositionMenager.h"
+#include "MotifExpositionMultiTick.h"
 
-/*Motif Type*/
-template<typename T>
-class MotifExpositionRandom : public MotifExposition<T>, public IMotifExpositionMultiTick
+
+
+
+template<class T_Motif>
+class MotifExpositionRandom : public MotifExpositionMultiTick<T_Motif>
 {
 public:
-	MotifExpositionRandom(MotifExposition<T>::MotifExposition BaseData,
-		IMotifExpositionMultiTick::IMotifExpositionMultiTick Ticks)
-		: MotifExposition<T>(BaseData),
-		IMotifExpositionMultiTick(Ticks)
+	MotifExpositionRandom(
+		MotifExposition<T_Motif> &Base, cocos2d::Vec4& SpawnArea,
+		float TickIntervalShow = 0.2,
+		float TickIntervalHide = 0.2)
+		:
+		MotifExpositionMultiTick<T_Motif>(Base, TickIntervalShow, TickIntervalHide),
+		SpawnArea(SpawnArea)
 	{}
 	
-	virtual void Run() override();
-	virtual void Update() override();
-
-protected:
-
-	virtual bool CreateOne() override();
-
-	virtual void SwitchToTickIntervalShow();
-	virtual void SwitchToTickIntervalHide();
-
+	
+protected:	
+	virtual void CreateOne() override;
+	
 
 	cocos2d::Vec2 GetRandomPosition(cocos2d::Vec4& BorderBox);
+
+	cocos2d::Vec4 SpawnArea;
 };
 
 
-template<class T>
-inline bool MotifExpositionRandom<T>::CreateOne()
+template<class T_Motif>
+inline void MotifExpositionRandom<T_Motif>::CreateOne()
 {
-	if (MotifBuffer.size() >= MotifAmount)
-		return false;
-	else
-	{
-		MotifBuffer.push_front(new T());
-		MotifBuffer.front()->SetPosition(GetRandomPosition());
-		MotifBuffer.front()->Run();
-	}
-	return true;
+	MotifBuffer.push_front(new T_Motif());
+	MotifBuffer.front()->SetPosition(GetRandomPosition(SpawnArea));
+	MotifBuffer.front()->Init();
+	MotifBuffer.front()->Run();
 }
 
 
-template<class T>
-inline void MotifExpositionRandom<T>::Update()
-{
-	if (MotifBuffer.size() >= MotifAmount)
-	{
-		if (MotifExposition<T>::GoalSwitch == 0)
-		{
-			SwitchToTickIntervalHide(); // do once
-		}
-		else
-			SwitchToTickIntervalShow(); // do once
-	}
 
-	MotifExposition<T>::Update();
-}
-
-template<class T>
-inline void MotifExpositionRandom<T>::Run()				// refactoring!
-{
-	cocos2d::Director::getInstance()->getScheduler()->schedule(
-		cocos2d::ccSchedulerFunc(std::bind(&MotifExpositionRandom<T>::Update, this)),
-		this, MotifExposition<T>::TickInterval, 0, MotifExposition<T>::ScheduleName);
-}
-
-template<class T>
-inline void MotifExpositionRandom<T>::SwitchToTickIntervalShow()		// refactoring!
-{
-	cocos2d::Director::getInstance()->getScheduler()->schedule(
-		cocos2d::ccSchedulerFunc(std::bind(&MotifExpositionRandom<T>::Update, this)),
-		this, IMotifExpositionMultiTick::TickIntervalShow, 0, MotifExposition<T>::ScheduleName);
-}
-
-template<class T>
-inline void MotifExpositionRandom<T>::SwitchToTickIntervalHide()		// refactoring!
-{
-	cocos2d::Director::getInstance()->getScheduler()->schedule(
-		cocos2d::ccSchedulerFunc(std::bind(&MotifExpositionRandom<T>::Update, this)),
-		this, IMotifExpositionMultiTick::TickIntervalHide, 0, MotifExposition<T>::ScheduleName);
-}
-
-
-template<class T>
-inline cocos2d::Vec2 MotifExpositionRandom<T>::GetRandomPosition(cocos2d::Vec4& BorderBox)
+template<class T_Motif>
+inline cocos2d::Vec2 MotifExpositionRandom<T_Motif>::GetRandomPosition(cocos2d::Vec4& BorderBox)
 {
 	return cocos2d::Vec2(
 		cocos2d::RandomHelper::random_int<int>(BorderBox.x, BorderBox.w),

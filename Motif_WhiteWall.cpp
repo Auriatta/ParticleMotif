@@ -29,16 +29,15 @@ void Motif_WhiteWall::TurnOffAllEmitters()
 	Emitter_->Stop();
 }
 
+void Motif_WhiteWall::Init()
+{
+	CreateEmitter();
+}
+
 
 Motif_WhiteWall::Motif_WhiteWall()
 {
-	Position = GetRandomPositionFromBorderBox(
-		cocos2d::Vec4(
-			BORDER_X_ORIGIN - 100, BORDER_Y_ORIGIN - 100,
-			BORDER_HEIGHT + 100, BORDER_WIDTH + 100));
-
 	RefreshRate = 0.3;
-	CreateEmitter();
 };
 	
 	
@@ -137,6 +136,7 @@ void Motif_WhiteWall::CreateEmitter()
 	emitter_s.RandVertiesShapes = true;
 	emitter_s.ShuffleParticleSettingsElements = false;
 	emitter_s.RandGlobalIndex = true;
+
 	emitter_s.ActionSequence.push_back(
 		ParticleAction{ [this]()->cocos2d::Action* {return cocos2d::FadeIn::create(1); }, ProcStatus::Begin });
 	emitter_s.ActionSequence.push_back(
@@ -145,13 +145,8 @@ void Motif_WhiteWall::CreateEmitter()
 		ParticleAction{ [this]()->cocos2d::Action* {return cocos2d::ScaleBy::create(2,1.5); }, ProcStatus::End });
 	emitter_s.ActionSequence.push_back(
 		ParticleAction{ [this]()->cocos2d::Action* {return cocos2d::FadeOut::create(1); }, ProcStatus::End });
+	
 	Emitter_ = new Emitter(&emitter_s, vertiesList);
 	Emitter_->Init();
 }
 
-cocos2d::Vec2 Motif_WhiteWall::GetRandomPositionFromBorderBox(cocos2d::Vec4 &BorderBox)
-{
-	return cocos2d::Vec2(
-		cocos2d::RandomHelper::random_int<int>(BorderBox.x, BorderBox.w),
-		cocos2d::RandomHelper::random_int<int>(BorderBox.y, BorderBox.z));
-}

@@ -27,7 +27,7 @@
 #include "cocos2d.h"
 #include "Motif_WhiteWall.h"
 #include "Motif_PlusShape.h"
-#include "MotifExpositionMenager.h"
+#include "MotifExpositionRandom.h"
 
 
 
@@ -36,10 +36,9 @@ class Main : public cocos2d::Scene
 
 public:
     Main()
-        : MotifExpositionWhiteWall(nullptr)
     {}
 
-    std::unique_ptr<MotifExposition<Motif_WhiteWall>> MotifExpositionWhiteWall;
+    std::unique_ptr<MotifExpositionRandom<Motif_WhiteWall>> MotifExpoRandomSample;
 
     static cocos2d::Scene* createScene();
 

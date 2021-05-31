@@ -23,6 +23,7 @@ FOR A PARTICULAR PURPOSE.
 class IMotif
 {
 public: 
+	virtual void Init() = 0;
 	virtual void Run() = 0;
 	virtual void TurnOffAllEmitters() = 0;
 	virtual void TurnOnAllEmitters() = 0;
