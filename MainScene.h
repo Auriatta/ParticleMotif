@@ -26,7 +26,6 @@
 #pragma once
 #include "cocos2d.h"
 #include "Motif_WhiteWall.h"
-#include "Motif_PlusShape.h"
 #include "MotifExpositionRandom.h"
 
 

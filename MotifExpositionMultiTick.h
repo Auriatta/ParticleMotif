@@ -53,11 +53,12 @@ public:
 		float TickIntervalHide = 0.2)
 		:
 		MotifExposition<T_Motif>(Base),
-		HideSwitchOnceFlag(std::make_unique<std::once_flag>())
+		ShowSwitchOnceFlag(std::make_unique<std::once_flag>())
 	{	
 		IMotifExpositionMultiTick::TickIntervalHide = TickIntervalHide;
 		IMotifExpositionMultiTick::TickIntervalShow = TickIntervalShow;
-		MotifExposition<T_Motif>::VisibleStateGoal = RunState::Hide;
+		MotifExposition<T_Motif>::VisibleStateGoal = RunState::Show;
+		MotifExposition<T_Motif>::TickCounter = MotifExposition<T_Motif>::DelayToShow;
 	};
 
 	virtual void Run() override;

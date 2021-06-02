@@ -147,6 +147,7 @@ void Motif_WhiteWall::CreateEmitter()
 		ParticleAction{ [this]()->cocos2d::Action* {return cocos2d::FadeOut::create(1); }, ProcStatus::End });
 	
 	Emitter_ = new Emitter(&emitter_s, vertiesList);
+	Emitter_->Stop();
 	Emitter_->Init();
 }
 

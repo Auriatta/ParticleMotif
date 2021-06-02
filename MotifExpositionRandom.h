@@ -55,6 +55,7 @@ inline void MotifExpositionRandom<T_Motif>::CreateOne()
 	MotifBuffer.front()->SetPosition(GetRandomPosition(SpawnArea));
 	MotifBuffer.front()->Init();
 	MotifBuffer.front()->Run();
+	
 }
 
 
